@@ -8,6 +8,7 @@ usage() {
 	echo "	-l	(sym)link to src instead of copy"
 	echo "	-d	dry-run - don't do anything"
 	echo "	-v	verbose"
+	echo "	-V	more verbose"
 	echo "	-t	trust variation"
 }
 
@@ -16,7 +17,7 @@ o_symlinks=0
 o_dryrun=0
 o_verbose=0
 o_trust_variations=0
-while getopts "hbldvt" opts; do
+while getopts "hbldvVt" opts; do
 	case "${opts}" in
 		h)
 			usage
@@ -41,6 +42,11 @@ while getopts "hbldvt" opts; do
 		v)
 			# verbose
 			o_verbose=1
+			;;
+
+		V)
+			# verbose
+			o_verbose=2
 			;;
 
 		t)
@@ -246,12 +252,19 @@ do
 
 	# echo "copyto: ${dest_file}"
 	if [ ! -f "$dest_file" ]; then
+		if [ ${o_verbose} == 2 ]; then
+			echo "copying to: $dest_file"
+		fi
 		if [ $o_dryrun == 0 ]; then
 			if [ $o_symlinks == 1 ]; then
 				ln -s "$file" "$dest_file"
 			else
 				cp "$file" "$dest_file"
 			fi
+		fi
+	else
+		if [ ${o_verbose} == 2 ]; then
+			echo "alreaty exists: $dest_file"
 		fi
 	fi
 done
