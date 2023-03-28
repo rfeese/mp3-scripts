@@ -127,7 +127,7 @@ do
 	# continue
 	
 	if [ ! -d $DEST_DIR/$A_LETTER ]; then
-		if [ ${o_verbose} == 1 ]; then
+		if [ ${o_verbose} -gt 0 ]; then
 			echo "creating: $DEST_DIR/$A_LETTER"
 		fi
 		if [ $o_dryrun == 0 ]; then
@@ -178,7 +178,7 @@ do
 
 	# artist dir
 	if [ ! -d $DEST_DIR/$A_LETTER/$ARTIST_SAFE ]; then
-		if [ ${o_verbose} == 1 ]; then
+		if [ ${o_verbose} -gt 0 ]; then
 			echo "creating: $DEST_DIR/$A_LETTER/$ARTIST_SAFE"
 		fi
 		if [ $o_dryrun == 0 ]; then
@@ -226,24 +226,35 @@ do
 	fi
 
 	# album dir
-	if [[ (${o_album_dirs} == 1 ) && (! -d $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE) ]]; then
-		if [ ${o_verbose} == 1 ]; then
-			echo "creating: $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE"
-		fi
-		if [ $o_dryrun == 0 ]; then
-			mkdir $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE
+	if [[ (${o_album_dirs} == 1 ) && ( ! -z ${ALBUM_SAFE} ) ]]; then
+		if [[ ! -d $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE ]]; then
+			if [ ${o_verbose} -gt 0 ]; then
+				echo "creating: $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE"
+			fi
+			if [ $o_dryrun == 0 ]; then
+				mkdir $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE
+			fi
+		else
+			if [ ${o_verbose} == 2 ]; then
+				echo "album dir already exists: $DEST_DIR/$A_LETTER/$ARTIST_SAFE/$ALBUM_SAFE"
+			fi
+
 		fi
 	fi
 
 	# copy the file
 	if [[ ${o_album_dirs} == 1 ]]; then
-		dest_file=${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${ALBUM_SAFE}/${TRACK_NUM_PART}${TRACK_TITLE_SAFE}.mp3
-	else
+		if [ -z ${ALBUM_SAFE} ]; then
+			dest_file=${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${TRACK_TITLE_SAFE}.mp3
+		else
+			dest_file=${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${ALBUM_SAFE}/${TRACK_NUM_PART}${TRACK_TITLE_SAFE}.mp3
+		fi
+	else # not making album dirs
 		dest_file=${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${TRACK_TITLE_SAFE}.mp3
 
 		# if file exitsts (same song, different album) generate a different name (based on album)
 		if [ -f "$dest_file" ]; then
-			if [ ${o_verbose} == 1 ]; then
+			if [[ ${o_verbose} -gt 0 && -z ${ALBUM_SAFE} ]]; then
 				echo "creating alternate: ${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${TRACK_TITLE_SAFE}_${ALBUM_SAFE}.mp3"
 			fi
 			dest_file=${DEST_DIR}/${A_LETTER}/${ARTIST_SAFE}/${TRACK_TITLE_SAFE}_${ALBUM_SAFE}.mp3
