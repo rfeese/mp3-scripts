@@ -8,11 +8,16 @@ usage() {
 	echo "	-h	help"
 	echo "	-l	(sym)link to src instead of copy"
 	echo "	-r	randomize/shuffle playlist"
+	echo "	-d	dry-run - don't do anything"
+	echo "	-v	verbose"
+	echo "	-V	more verbose"
 }
 
 o_symlinks=0
 o_randomize=0
-while getopts "hblr" opts; do
+o_dryrun=0
+o_verbose=0
+while getopts "hblrdvV" opts; do
 	case "${opts}" in
 		h)
 			usage
@@ -25,7 +30,21 @@ while getopts "hblr" opts; do
 		r)
 			o_randomize=1
 			;;
-			
+
+		d)
+			# dryrun
+			o_dryrun=1
+			;;
+
+		v)
+			# verbose
+			o_verbose=1
+			;;
+
+		V)
+			# verbose
+			o_verbose=2
+			;;
 	esac
 done
 
@@ -53,7 +72,9 @@ fi
 
 if [ ! -d $DEST_DIR ]; then
 	echo "creating: $DEST_DIR"
-	mkdir $DEST_DIR
+	if [ $o_dryrun == 0 ]; then
+		mkdir -p $DEST_DIR
+	fi
 fi
 
 if [ $o_randomize == 1 ]; then
@@ -103,9 +124,19 @@ while IFS= read -r song; do
 	# echo "copyto: ${dest_file}"
 	if [ ! -f "$dest_file" ]; then
 		if [ $o_symlinks == 1 ]; then
-			ln -s "$file" "$dest_file"
+			if [ $o_verbose -gt 1 ]; then
+				echo "linking $dest_file"
+			fi
+			if [ $o_dryrun == 0 ]; then
+				ln -s "$file" "$dest_file"
+			fi
 		else
-			cp "$file" "$dest_file"
+			if [ $o_verbose -gt 1 ]; then
+				echo "copying $dest_file"
+			fi
+			if [ $o_dryrun == 0 ]; then
+				cp "$file" "$dest_file"
+			fi
 		fi
 
 		let track_num++
