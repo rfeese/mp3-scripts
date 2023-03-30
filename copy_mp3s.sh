@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() { 
-	echo "Usage: $0 [OPTIONS] src_dir dest_dir"
+	echo "Usage: $0 [OPTIONS] src dest_dir"
 	echo "OPTIONS:"
 	echo "	-h	help"
 	echo "	-b	album directories"
@@ -56,19 +56,19 @@ while getopts "hbldvVt" opts; do
 	esac
 done
 
-SRC_DIR=""
+SRC=""
 DEST_DIR=""
 
-SRC_DIR=${@:$OPTIND:1}
+SRC=${@:$OPTIND:1}
 DEST_DIR=${@:$OPTIND+1:1}
 
-if [ -z $SRC_DIR ] || [ -z $DEST_DIR ]; then
+if [ -z $SRC ] || [ -z $DEST_DIR ]; then
 	usage
 	exit 0
 fi
 
-if [ ! -d $SRC_DIR ]; then
-	echo "ERROR: src_dir does not exist." 1>&2
+if [[ (! -d $SRC) && (! -f $SRC) ]]; then
+	echo "ERROR: src does not exist." 1>&2
 	exit 0
 fi
 
@@ -77,10 +77,10 @@ if [ ! -d $DEST_DIR ]; then
 	exit 0
 fi
 
-# enable globbing to search subdirs
-shopt -s globstar
-for file in $SRC_DIR/**/*.mp3
-do
+
+copy_file() {
+	file=$1
+
 	# check whether file has id3 tag
 	mp3info -p "%a / %l / %t\n"  "$file" > /dev/null
 	if [ $? -ne 0 ]; then
@@ -278,6 +278,18 @@ do
 			echo "alreaty exists: $dest_file"
 		fi
 	fi
-done
+}
 
+# if src is a file, copy one file
+if [ -f $SRC ]; then
+	copy_file $SRC
+# look for files in a directory
+else
+	# enable globbing to search subdirs
+	shopt -s globstar
+	for file in $SRC/**/*.mp3
+	do
+		copy_file $file
+	done
+fi
 exit 1
