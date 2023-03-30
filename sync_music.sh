@@ -3,6 +3,7 @@ usage() {
 	echo "OPTIONS:"
 	echo "	-h	help"
 	echo "	-l	(sym)link alternates instead of copy"
+	echo "	-r	randomize playlists"
 	echo "	-d	dry-run - don't do anything"
 	echo "	-v	verbose"
 	echo "	-V	more verbose"
@@ -17,7 +18,7 @@ o_l=''
 o_d=''
 o_v=''
 o_V=''
-while getopts "hldvV" opts; do
+while getopts "hlrdvV" opts; do
 	case "${opts}" in
 		h)
 			usage
@@ -50,7 +51,7 @@ while getopts "hldvV" opts; do
 
 		r)
 			# randomize
-			o_randomize=1
+			o_randomize_playlists=1
 			;;
 
 	esac
@@ -114,15 +115,17 @@ if [ ! -d $DEST_DIR/Playlists ]; then
 	echo "ERROR: dest_dir/Playlists does not exist." 1>&2
 	exit 0
 fi
-for playlist_file in $SRC_DIR/Playlists/
+for playlist_file in $SRC_DIR/Playlists/*.pls
 do
-	dest_playlist=$DEST_DIR/Playlists/${playlist_file%%.*}
+	# trim file extention and path to build destination dir
+	dest_playlist=${playlist_file%%.*}
+	dest_playlist=$DEST_DIR/Playlists/${dest_playlist##*/}
 	# clear out old playlist
 	if [ -d $dest_playlist ]; then
 		rm $dest_playlist/*
 	fi
 
-	if [ $o_randomize == 1 ]; then
+	if [ $o_randomize_playlists == 1 ]; then
 		./copy_playlist.sh${o_l}${o_d}${o_v}${o_V} -r $playlist_file $DEST_DIR/Artist-Album $dest_playlist
 	else
 		./copy_playlist.sh${o_l}${o_d}${o_v}${o_V} $playlist_file $DEST_DIR/Artist-Album $dest_playlist
