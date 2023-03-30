@@ -61,7 +61,7 @@ if [ -z $SRC_PLS ] || [ -z $SRC_BASE_DIR ] || [ -z $DEST_DIR ]; then
 fi
 
 if [ ! -f $SRC_PLS ]; then
-	echo "ERROR: src_pls does not exist." >&2
+	echo "ERROR: src_pls $SRC_PLS does not exist." >&2
 	exit 0
 fi
 
