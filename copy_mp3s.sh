@@ -68,7 +68,7 @@ if [ -z $SRC ] || [ -z $DEST_DIR ]; then
 fi
 
 if [[ (! -d $SRC) && (! -f $SRC) ]]; then
-	echo "ERROR: src does not exist." 1>&2
+	echo "ERROR: src $SRC does not exist." 1>&2
 	exit 0
 fi
 
@@ -136,7 +136,7 @@ copy_file() {
 	fi
 
 	# look for variations on Artist the
-	if [ $(find $DEST_DIR/T/ -maxdepth 1  -mindepth 1 -type d -iname "The_$ARTIST_SAFE" | wc -l) -gt 0 ]; then
+	if [[ (-d $DEST_DIR/T) && $(find $DEST_DIR/T/ -maxdepth 1  -mindepth 1 -type d -iname "The_$ARTIST_SAFE" | wc -l) -gt 0 ]]; then
 		altartistdir=$(find $DEST_DIR/T/ -maxdepth 1 -mindepth 1 -type d -iname "The_$ARTIST_SAFE" -printf '%P')
 		echo "Warning: artist-name 'the' variation exists for $ARTIST_SAFE: $altartistdir" 1>&2
 		if [ ${o_trust_variations} == 1 ]; then
@@ -154,7 +154,7 @@ copy_file() {
 		# shorten
 		artistand="${artistand:0:30}"
 		#echo "Looking for artist and variation: $artistand ..."
-		if [ $(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$artistand" | wc -l) -gt 0 ]; then
+		if [[ (-d $DEST_DIR/$A_LETTER) && $(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$artistand" | wc -l) -gt 0 ]]; then
 			altartistdir=$(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$artistand" -printf '%P')
 			echo "Warning: artist-name 'and' variation exists for $ARTIST_SAFE: $altartistdir" 1>&2
 			if [ ${o_trust_variations} == 1 ]; then
@@ -167,7 +167,7 @@ copy_file() {
 
 	# look for variations on Artist case insensitive
 	if [ ! -d $DEST_DIR/$A_LETTER/$ARTIST_SAFE ]; then
-		if [ $(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$ARTIST_SAFE" | wc -l) -gt 0 ]; then
+		if [[ (-d $DEST_DIR/$A_LETTER) && $(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$ARTIST_SAFE" | wc -l) -gt 0 ]]; then
 			altartistdir=$(find $DEST_DIR/$A_LETTER/ -maxdepth 1 -mindepth 1 -type d -iname "$ARTIST_SAFE" -printf '%P')
 			echo "Warning: artist-name captialization variation exists for $ARTIST_SAFE: $altartistdir" 1>&2
 			if [ ${o_trust_variations} == 1 ]; then
@@ -289,7 +289,7 @@ else
 	shopt -s globstar
 	for file in $SRC/**/*.mp3
 	do
-		copy_file $file
+		copy_file "$file"
 	done
 fi
 exit 1
