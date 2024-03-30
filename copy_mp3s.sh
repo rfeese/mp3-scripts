@@ -85,13 +85,13 @@ copy_file() {
 	mp3info -p "%a / %l / %t\n"  "$file" > /dev/null
 	if [ $? -ne 0 ]; then
 		echo "ERROR: $file missing ID3 tag." 1>&2
-		continue
+		return
 	fi
 
 	ARTIST=$(mp3info -p "%a" "$file")
 	if [ -z "${ARTIST}" ]; then
 		echo "ERROR: $file artist empty." 1>&2
-		continue
+		return
 	fi
 
 	# allow empty album
@@ -109,7 +109,7 @@ copy_file() {
 	TRACK_TITLE=$(mp3info -p "%t" "$file")
 	if [ -z "${TRACK_TITLE}" ]; then
 		echo "ERROR: $file track title empty." 1>&2
-		continue
+		return
 	fi
 
 	ARTIST_SAFE=$(echo "${ARTIST}" | sed -r "s/[ &/]+/_/g" | sed -r "s/[^0-9A-Za-z._-]+//g")
