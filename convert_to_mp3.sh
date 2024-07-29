@@ -37,8 +37,8 @@ while getopts "hdvV" opts; do
 	esac
 done
 
-SRC="."
-DEST_DIR="."
+SRC=""
+DEST_DIR=""
 
 SRC=${@:$OPTIND:1}
 DEST_DIR=${@:$OPTIND+1:1}
@@ -48,7 +48,7 @@ if [[ (! -d $SRC) && (! -f $SRC) ]]; then
 	exit 0
 fi
 
-if [ ! -d $DEST_DIR ]; then
+if [[ (! -z "$DEST_DIR") && (! -d $DEST_DIR) ]]; then
 	echo "ERROR: dest_dir $DEST_DIR does not exist." 1>&2
 	exit 0
 fi
@@ -61,7 +61,20 @@ convert_file_to_mp3() {
 	fi
 	extension="${file##*.}"
 	basename="$(basename "$file" .$extension)"
-	dest_file="${DEST_DIR}/${basename}.mp3"
+
+	if [ ! -z "${DEST_DIR}" ]; then
+		dest_file="${DEST_DIR}/${basename}.mp3"
+	else
+		dest_file="${file%.*}.mp3"
+	fi
+
+	if [ -f "$dest_file" ]; then
+		if [ ${o_verbose} -gt 0 ]; then
+			echo "destination file $dest_file already exists, skipping."
+		fi
+		return
+	fi
+
 	if [ ${o_verbose} -gt 0 ]; then
 		echo "converting $file to $dest_file ..."
 	fi
@@ -80,7 +93,7 @@ if [ -f $SRC ]; then
 else
 	# enable globbing to search subdirs
 	shopt -s globstar
-	for file in $SRC/*.m4a
+	for file in $SRC/**/*.m4a
 	do
 		convert_file_to_mp3 "$file"
 	done
