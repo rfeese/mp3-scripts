@@ -67,7 +67,7 @@ if [ -z $SRC ] || [ -z $DEST_DIR ]; then
 	exit 0
 fi
 
-if [[ (! -d $SRC) && (! -f $SRC) ]]; then
+if [[ (! -d "$SRC") && (! -f "$SRC") ]]; then
 	echo "ERROR: src $SRC does not exist." 1>&2
 	exit 0
 fi
@@ -281,8 +281,8 @@ copy_file() {
 }
 
 # if src is a file, copy one file
-if [ -f $SRC ]; then
-	copy_file $SRC
+if [ -f "$SRC" ]; then
+	copy_file "$SRC"
 # look for files in a directory
 else
 	# enable globbing to search subdirs
