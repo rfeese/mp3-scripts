@@ -90,9 +90,9 @@ if [ ! -d $DEST_DIR/Artist-Album ]; then
 fi
 
 if [ $o_dryrun == 1 ]; then
-	newfiles=$(rsync -av --size-only --out-format='%i#%n' --dry-run ${SRC_DIR}/Artist-Album/ ${DEST_DIR}/Artist-Album/ | grep '^>f' | cut -d '#' -f2)
+	newfiles=$(rsync -av --size-only --no-perms --no-group --no-owner --out-format='%i#%n' --dry-run ${SRC_DIR}/Artist-Album/ ${DEST_DIR}/Artist-Album/ | grep '^>f' | cut -d '#' -f2)
 else
-	newfiles=$(rsync -av --size-only --out-format='%i#%n' ${SRC_DIR}/Artist-Album/ ${DEST_DIR}/Artist-Album/ | grep '^>f' | cut -d '#' -f2)
+	newfiles=$(rsync -av --size-only --no-perms --no-group --no-owner --out-format='%i#%n' ${SRC_DIR}/Artist-Album/ ${DEST_DIR}/Artist-Album/ | grep '^>f' | cut -d '#' -f2)
 fi
 
 if [ $o_verbose -gt 0 ]; then
@@ -115,7 +115,7 @@ if [ ! -d $DEST_DIR/Playlists ]; then
 	echo "ERROR: dest_dir/Playlists does not exist." 1>&2
 	exit 0
 fi
-for playlist_file in $SRC_DIR/Playlists/*.pls
+for playlist_file in $SRC_DIR/Playlists/*.m3u
 do
 	# trim file extention and path to build destination dir
 	dest_playlist=${playlist_file%%.*}
